@@ -1,4 +1,4 @@
-package br.sc.senai.envd.cliente.cripto;
+package com.cripto.envd.cliente.cripto;
 
 /**
  * Classe de serviço que implementa os métodos criptográficos necessários para o funcionamento
@@ -12,13 +12,13 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-public class Cripto_Cliente {
+public class CriptoClient {
     
     public static final String ALGORITMO_ASSIMETRICO = "RSA";
     public static final String ALGORITMO_SIMETRICO = "RC4";
     public static final String CHAVE_ALGORITMO_SIMETRICO = "RC4";
 
-    public Cripto_Cliente(){
+    public CriptoClient(){
     }
     
     /**

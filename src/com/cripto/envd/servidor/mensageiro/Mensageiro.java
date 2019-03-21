@@ -1,4 +1,4 @@
-package br.sc.senai.envd.servidor.mensageiro;
+package com.cripto.envd.servidor.mensageiro;
 
 /*
  * To change this template, choose Tools | Templates
@@ -10,6 +10,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.List;
 
 public interface Mensageiro extends Remote {
 
@@ -17,5 +18,5 @@ public interface Mensageiro extends Remote {
         public boolean gravarChaveSimetricaNoServidor(byte[] chaveSim) throws RemoteException;
         public byte[] gravarMensagemEncriptadaNaFila(byte[] nomeFila, byte[] mensagem) throws RemoteException;
         public byte[] deletarFila(byte[] nomeFila) throws RemoteException;
-        public ArrayList lerFila(byte[] nomefilas) throws RemoteException;
+        public List lerFila(byte[] nomefilas) throws RemoteException;
 }

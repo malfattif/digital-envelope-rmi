@@ -1,12 +1,5 @@
-package br.sc.senai.envd.servidor.cripto;
+package com.cripto.envd.servidor.cripto;
 
-/**
- * Classe de trabalho que implementa os métodos criptográficos necessários para
- * o funcionamento do processo de criptografia entre um Cliente e o Servidor.
- * Esta classe atende somente ao servidor de comunicação. * 
- * 
- */
-import br.sc.senai.envd.cliente.cripto.Cripto_Cliente;
 import java.io.InputStream; 
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -21,6 +14,8 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.cripto.envd.cliente.cripto.CriptoClient;
+
 /**
 KeyStore de criptografia gerado com prazo de vida de 10 anos.
 Utilizado apenas para armazenar as chaves Pública e Privada,
@@ -28,14 +23,14 @@ necessárias ao processo de criptografia. Utiliza algorítmo RSA.
 Comando para geração do certificado:
 keytool -genkey -alias autentica -keyalg RSA -keypass seg2012 -storepass seg2012 -keystore env_digital.jks -validity 3650
 */
-public class Cripto_Server {
+public class CriptoServer {
     
     private static final String KEY_STORE_PATH = "/conf/envdigital.jks";
     private static final String alias = "envdigital"; 
     private static String password = null;
     private final InputStream inputStreamKeyStore = getClass().getResourceAsStream(KEY_STORE_PATH);
        
-    public Cripto_Server(){
+    public CriptoServer(){
     }
 
     /**
@@ -47,7 +42,7 @@ public class Cripto_Server {
      */
     public static byte[] decriptarComChavePrivada (byte[] byteTextoCriptografado, PrivateKey chavePrivada){
         try {
-            Cipher cifra = Cipher.getInstance(Cripto_Cliente.ALGORITMO_ASSIMETRICO);
+            Cipher cifra = Cipher.getInstance(CriptoClient.ALGORITMO_ASSIMETRICO);
             cifra.init(Cipher.DECRYPT_MODE, chavePrivada);
             System.out.println("Crypto_Server: Tam bytes decriptados: " + byteTextoCriptografado.length);
             return cifra.doFinal(byteTextoCriptografado);
@@ -106,8 +101,8 @@ public class Cripto_Server {
      */
     public static byte[] encriptarComChaveSimetrica(byte[] bytesTextoPuro, byte[] bytesChaveSimetrica){
          try {
-             Cipher cifra = Cipher.getInstance(Cripto_Cliente.ALGORITMO_SIMETRICO);
-             cifra.init(Cipher.ENCRYPT_MODE, new SecretKeySpec (bytesChaveSimetrica,Cripto_Cliente.CHAVE_ALGORITMO_SIMETRICO));
+             Cipher cifra = Cipher.getInstance(CriptoClient.ALGORITMO_SIMETRICO);
+             cifra.init(Cipher.ENCRYPT_MODE, new SecretKeySpec (bytesChaveSimetrica,CriptoClient.CHAVE_ALGORITMO_SIMETRICO));
              return cifra.update(bytesTextoPuro);
          } catch (NoSuchAlgorithmException ex){
             System.out.println("Erro no Algoritmo de  decriptação simétrica, Verifique! " + ex.getMessage());
@@ -126,8 +121,8 @@ public class Cripto_Server {
      */
     public static byte[] decriptarComChaveSimetrica(byte[] bytesTextoCriptografado, byte[] bytesChaveSimetrica){
          try {
-             Cipher cifra = Cipher.getInstance(Cripto_Cliente.ALGORITMO_SIMETRICO);
-             SecretKeySpec chaveSimetrica = new SecretKeySpec (bytesChaveSimetrica,Cripto_Cliente.CHAVE_ALGORITMO_SIMETRICO);
+             Cipher cifra = Cipher.getInstance(CriptoClient.ALGORITMO_SIMETRICO);
+             SecretKeySpec chaveSimetrica = new SecretKeySpec (bytesChaveSimetrica,CriptoClient.CHAVE_ALGORITMO_SIMETRICO);
              cifra.init(Cipher.DECRYPT_MODE, chaveSimetrica);
              return cifra.update(bytesTextoCriptografado);             
          }
@@ -150,6 +145,6 @@ public class Cripto_Server {
     }
     
     public static void setPassword(String password) {
-        Cripto_Server.password = password;
+        CriptoServer.password = password;
     }
 }

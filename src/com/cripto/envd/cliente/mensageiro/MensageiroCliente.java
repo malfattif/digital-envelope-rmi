@@ -1,14 +1,5 @@
-package br.sc.senai.envd.cliente.mensageiro;
+package com.cripto.envd.cliente.mensageiro;
 
-/**
- * Classe que implementa os métodos do Cliente no sistema de mensagens. Esta
- * classe implementa os métodos necessários para a comunicação segura com o
- * servidor, através do uso da criptografia forte com RSA e criptografia
- * simétrica o algoritmo AES A solução implementa o conceito de envelopamento
- * digital no padrão W3-security.
- */
-import br.sc.senai.envd.servidor.mensageiro.Mensageiro;
-import br.sc.senai.envd.cliente.cripto.Cripto_Cliente;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -16,13 +7,17 @@ import java.rmi.RemoteException;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+
+import com.cripto.envd.cliente.cripto.CriptoClient;
+import com.cripto.envd.servidor.mensageiro.Mensageiro;
 
 public class MensageiroCliente {
 
     private static final String servidorRMI = "localhost";
     private static String nomeFila = "";
     private static String mensagem = "";
-    private static ArrayList listaMensagens = new ArrayList();
+    private static List listaMensagens = new ArrayList();
     private static final Integer numeroFilas = 2;
     private static final Integer numeroMensagens = 2;
     private static byte[] chaveSimetrica = null;
@@ -32,10 +27,10 @@ public class MensageiroCliente {
         try {
             Mensageiro mensageiroServer = (Mensageiro) Naming.lookup("rmi://" + servidorRMI + "/ServicoEnvelopeDigital");
 
-            chaveSimetrica = Cripto_Cliente.obterChaveSimetrica();
+            chaveSimetrica = CriptoClient.obterChaveSimetrica();
             chavePublica = mensageiroServer.obterChavePublicaDoServidor();
 
-            byte[] chaveSimetricaEncriptada = Cripto_Cliente.encriptarComChavePublica(chaveSimetrica, chavePublica);
+            byte[] chaveSimetricaEncriptada = CriptoClient.encriptarComChavePublica(chaveSimetrica, chavePublica);
 
             if (!mensageiroServer.gravarChaveSimetricaNoServidor(chaveSimetricaEncriptada)) {
                 System.out.println("Erro ao enviar chave simétrica ao servidor!");
@@ -48,11 +43,11 @@ public class MensageiroCliente {
                 for (int k = 1; k <= numeroMensagens; k++) {
                     mensagem = " Mensagem nr: " + k;
                     
-                    byte[] bytesMensagemEncriptado = Cripto_Cliente.encriptarComChaveSimetrica(mensagem.getBytes(), chaveSimetrica);
-                    byte[] bytesNomeFilaEncriptado = Cripto_Cliente.encriptarComChaveSimetrica(nomeFila.getBytes(), chaveSimetrica);
+                    byte[] bytesMensagemEncriptado = CriptoClient.encriptarComChaveSimetrica(mensagem.getBytes(), chaveSimetrica);
+                    byte[] bytesNomeFilaEncriptado = CriptoClient.encriptarComChaveSimetrica(nomeFila.getBytes(), chaveSimetrica);
                     
                     byte[] retornoGravarEncriptado = mensageiroServer.gravarMensagemEncriptadaNaFila(bytesNomeFilaEncriptado, bytesMensagemEncriptado);
-                    String retornoGravarDecriptado = new String(Cripto_Cliente.decriptarComChaveSimetrica(retornoGravarEncriptado, chaveSimetrica));
+                    String retornoGravarDecriptado = new String(CriptoClient.decriptarComChaveSimetrica(retornoGravarEncriptado, chaveSimetrica));
                     
                     System.out.println(retornoGravarDecriptado);
                 }
@@ -61,7 +56,7 @@ public class MensageiroCliente {
             // Define os nomes das filas, encripta e consulta no servidor
             for (int j = 1; j <= numeroFilas; j++) {
                 nomeFila = "Fila [" + j + "]";
-                byte[] bytesNomeFilaCriptografado = Cripto_Cliente.encriptarComChaveSimetrica(nomeFila.getBytes(), chaveSimetrica);
+                byte[] bytesNomeFilaCriptografado = CriptoClient.encriptarComChaveSimetrica(nomeFila.getBytes(), chaveSimetrica);
                 listaMensagens = mensageiroServer.lerFila(bytesNomeFilaCriptografado);
                 System.out.print(nomeFila);
                 byte[] bytesMensagemEncriptado = null;
@@ -69,7 +64,7 @@ public class MensageiroCliente {
                 System.out.print(" - msg decriptadas: ");
                 while (iterator.hasNext()) {
                     bytesMensagemEncriptado = (byte[]) iterator.next();
-                    String mensagemDecriptada = new String(Cripto_Cliente.decriptarComChaveSimetrica(bytesMensagemEncriptado, chaveSimetrica));
+                    String mensagemDecriptada = new String(CriptoClient.decriptarComChaveSimetrica(bytesMensagemEncriptado, chaveSimetrica));
                     System.out.print("[" + mensagemDecriptada + "]");
                 }
                 System.out.print("\n");
@@ -78,10 +73,10 @@ public class MensageiroCliente {
             // Define as filas, encripta e solicita a exclusão do servidor
             for (int k = 1; k <= numeroFilas; k++) {
                 nomeFila = "Fila [" + k + "]";
-                byte[] bytesNomeFilaEncriptado = Cripto_Cliente.encriptarComChaveSimetrica(nomeFila.getBytes(), chaveSimetrica);
+                byte[] bytesNomeFilaEncriptado = CriptoClient.encriptarComChaveSimetrica(nomeFila.getBytes(), chaveSimetrica);
                 byte[] retornoDeletarEncriptado = mensageiroServer.deletarFila(bytesNomeFilaEncriptado);
                 
-                String retornoDeletarDecriptado = new String(Cripto_Cliente.decriptarComChaveSimetrica(retornoDeletarEncriptado, chaveSimetrica));
+                String retornoDeletarDecriptado = new String(CriptoClient.decriptarComChaveSimetrica(retornoDeletarEncriptado, chaveSimetrica));
                 System.out.println("Excluíndo: " + nomeFila + " " + retornoDeletarDecriptado);
             }
             
